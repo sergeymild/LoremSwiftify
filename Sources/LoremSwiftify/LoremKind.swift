@@ -10,6 +10,7 @@ import Foundation
 public enum LoremKind {
     case string(StringLorem)
     case url(URLLorem)
+    case array(Int)
 }
 
 public extension LoremKind {

@@ -111,7 +111,10 @@ struct ContentView: View {
 extension ContentView {
     @LoremSwiftify
     struct Display {
+        @Lorem(.array(4))
         let developers: [Developer]?
+        @Lorem(.array(2))
+        let developers2: [Developer]
         let optS: OptS?
         let str: String?
         

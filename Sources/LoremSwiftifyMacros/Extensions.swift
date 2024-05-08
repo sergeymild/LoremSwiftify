@@ -99,7 +99,7 @@ extension VariableDeclSyntax {
         bindings.first?.typeAnnotation?.type.as(IdentifierTypeSyntax.self)?.name.text ?? ""
     }
 
-    private var loremAttribute: AttributeSyntax? {
+    var loremAttribute: AttributeSyntax? {
         attributes
             .first(
                 where: { 
@@ -126,6 +126,32 @@ extension VariableDeclSyntax {
         else { return nil }
 
         return ".\(outerEnumRawValue)(.\(innerEnumRawValue))"
+    }
+    
+    var loremAttributeKindInt: String? {
+        guard
+            let loremAttribute,
+            let expression = loremAttribute
+                .arguments?.as(LabeledExprListSyntax.self)?
+                .first?.expression.as(FunctionCallExprSyntax.self),
+            let outerEnumRawValue = expression.calledExpression.as(MemberAccessExprSyntax.self)?
+                .declName.baseName.text,
+            let int = expression.arguments.first?.as(LabeledExprSyntax.self)?.expression.as(IntegerLiteralExprSyntax.self)
+        else { return nil }
+
+        return ".\(outerEnumRawValue)(\(int.literal.text))"
+    }
+}
+
+extension PatternBindingListSyntax.Element {
+    
+    var optionalType: TypeSyntax? {
+        typeAnnotation?.type.as(OptionalTypeSyntax.self)?.wrappedType
+    }
+    
+    var arrayType: TypeSyntax? {
+        let t = optionalType ?? typeAnnotation?.type
+        return t?.as(ArrayTypeSyntax.self)?.element
     }
 }
 

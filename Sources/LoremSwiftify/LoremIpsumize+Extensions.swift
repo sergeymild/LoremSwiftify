@@ -23,84 +23,6 @@ extension LoremIpsumize {
     }
 }
 
-extension Optional: LoremIpsumize {
-    public static func lorem() -> Optional<Wrapped> {
-        .none
-    }
-    
-    public static func lorem(_ kind: LoremKind?) -> Optional<Wrapped> {
-        if Wrapped.self == String.self {
-            let t = (Wrapped.self as! LoremIpsumize)
-            return String.lorem(kind) as! Wrapped
-        }
-        if Wrapped.self == Int.self {
-            return Int.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Int8.self {
-            return Int8.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Int16.self {
-            return Int16.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Int32.self {
-            return Int32.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Int64.self {
-            return Int64.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == UInt.self {
-            return UInt.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == UInt8.self {
-            return UInt8.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == UInt16.self {
-            return UInt16.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == UInt32.self {
-            return UInt32.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == UInt64.self {
-            return UInt64.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Double.self {
-            return Double.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Float.self {
-            return Float.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Bool.self {
-            return Bool.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Date.self {
-            return Date.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == URL.self {
-            return URL.lorem() as! Wrapped
-        }
-        
-        if Wrapped.self == Color.self {
-            return Color.lorem() as! Wrapped
-        }
-
-        return .none
-    }
-}
-
 extension Dictionary: LoremIpsumize where Key: LoremIpsumize, Value: LoremIpsumize {
     public static func lorem() -> Dictionary<Key, Value> {
         let count = Int.random(in: 2...10)
@@ -117,6 +39,18 @@ extension Array: LoremIpsumize where Element: LoremIpsumize {
 
         return (1...count).indices.map { _ in
             Element.lorem()
+        }
+    }
+    
+    public static func lorem(_ kind: LoremKind?) -> Array<Element> {
+        switch kind {
+        case .array(let count):
+            if count <= 0 { return [] }
+            if count == 1 { Element.lorem() }
+            return (1...count).indices.map { _ in Element.lorem() }
+        default:
+            let count = Int.random(in: 2...10)
+            return (1...count).indices.map { _ in Element.lorem() }
         }
     }
 }

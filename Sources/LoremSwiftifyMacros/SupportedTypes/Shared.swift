@@ -12,6 +12,17 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 enum LoremSwiftifyMacroParsingShared {
+    enum CustomError: Error, CustomStringConvertible {
+      case message(String)
+
+      var description: String {
+        switch self {
+        case .message(let text):
+          return text
+        }
+      }
+    }
+    
     static func handleClassOrStructDeclSyntax(
         selfName: String,
         members: MemberBlockItemListSyntax,
@@ -31,7 +42,7 @@ enum LoremSwiftifyMacroParsingShared {
                 .compactMap { $0.decl.as(VariableDeclSyntax.self) }
                 .filter(\.isStoredProperty)
 
-            funcBody = generateInitCode(initName: selfName, variableDecls: variableDecls)
+            funcBody = try generateInitCode(initName: selfName, variableDecls: variableDecls)
         }
 
         if isClass {
@@ -80,24 +91,31 @@ enum LoremSwiftifyMacroParsingShared {
     static func generateInitCode(
         initName: String,
         variableDecls: [VariableDeclSyntax]
-    ) -> String {
+    ) throws -> String {
         var initialCode: String = "\(initName)("
 
         for variable in variableDecls where !variable.isInitialized {
             guard let first = variable.bindings.first else { continue }
             
             var lorem: String = ".lorem()"
-            if var wrappedType = first.typeAnnotation?.type.as(OptionalTypeSyntax.self)?.wrappedType {
+            if let loremAttributeKindString = variable.loremAttributeKindString {
+                lorem = ".lorem(\(loremAttributeKindString))"
+            }
+            
+            if let loremAttributeKindString = variable.loremAttributeKindInt {
+                if first.arrayType == nil {
+                    throw CustomError.message("Property \(first) annotated with .lorem(.array(count)) should be an array")
+                }
+                lorem = ".lorem(\(loremAttributeKindString))"
+            }
+            
+            if var wrappedType = first.optionalType {
                 if let name = wrappedType.as(ArrayTypeSyntax.self)?.element.as(IdentifierTypeSyntax.self)?.name {
                     wrappedType = TypeSyntax(IdentifierTypeSyntax(name: "[\(name)]"))
                 }
                 if let name = wrappedType.as(IdentifierTypeSyntax.self)?.name {
-                    lorem = "\(name).lorem()"
+                    lorem = "\(name)\(lorem)"
                 }
-            }
-
-            if let loremAttributeKindString = variable.loremAttributeKindString {
-                lorem = ".lorem(\(loremAttributeKindString))"
             }
             
 
