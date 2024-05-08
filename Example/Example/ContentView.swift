@@ -44,13 +44,13 @@ struct ContentView: View {
     
     init(display: ContentView.Display) {
         self.display = display
-        debugPrint(UIColor.fromIntToHex(display.developers.first!.color2))
     }
 
     var body: some View {
         ScrollView {
+            Text(display.optS?.name ?? "nil")
             VStack(alignment: .leading) {
-                ForEach(display.developers) { developer in
+                ForEach(display.developers ?? []) { developer in
                     itemView(developer)
                 }
             }
@@ -111,7 +111,14 @@ struct ContentView: View {
 extension ContentView {
     @LoremSwiftify
     struct Display {
-        let developers: [Developer]
+        let developers: [Developer]?
+        let optS: OptS?
+        let str: String?
+        
+        @LoremSwiftify
+        struct OptS {
+            let name: String
+        }
 
         @LoremSwiftify
         struct Developer: Identifiable {

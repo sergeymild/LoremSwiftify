@@ -30,6 +30,7 @@ extension Optional: LoremIpsumize {
     
     public static func lorem(_ kind: LoremKind?) -> Optional<Wrapped> {
         if Wrapped.self == String.self {
+            let t = (Wrapped.self as! LoremIpsumize)
             return String.lorem(kind) as! Wrapped
         }
         if Wrapped.self == Int.self {

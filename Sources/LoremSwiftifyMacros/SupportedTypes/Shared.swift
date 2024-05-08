@@ -84,15 +84,24 @@ enum LoremSwiftifyMacroParsingShared {
         var initialCode: String = "\(initName)("
 
         for variable in variableDecls where !variable.isInitialized {
-            guard let pattern = variable.bindings.first?.pattern else { continue }
+            guard let first = variable.bindings.first else { continue }
             
-            var lorem = ".lorem()"
+            var lorem: String = ".lorem()"
+            if var wrappedType = first.typeAnnotation?.type.as(OptionalTypeSyntax.self)?.wrappedType {
+                if let name = wrappedType.as(ArrayTypeSyntax.self)?.element.as(IdentifierTypeSyntax.self)?.name {
+                    wrappedType = TypeSyntax(IdentifierTypeSyntax(name: "[\(name)]"))
+                }
+                if let name = wrappedType.as(IdentifierTypeSyntax.self)?.name {
+                    lorem = "\(name).lorem()"
+                }
+            }
 
             if let loremAttributeKindString = variable.loremAttributeKindString {
                 lorem = ".lorem(\(loremAttributeKindString))"
             }
+            
 
-            let name = "\(pattern.trimmed)"
+            let name = "\(first.pattern.trimmed)"
 
             initialCode.append("\n\(name): \(lorem), ")
         }
